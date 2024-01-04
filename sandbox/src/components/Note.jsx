@@ -1,8 +1,7 @@
 const Note = ({ note }) => {
-    console.log("Note props: ", note);
-    return (
-      <li>{note}</li>
-    )
-  }
-  
-  export default Note
+  return (
+    <li>{note.content}</li>
+  )
+}
+
+export default Note
