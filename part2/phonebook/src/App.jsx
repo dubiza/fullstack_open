@@ -31,8 +31,9 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      ...
-      <div>debug: {newName}</div>
+      {persons.map(person =>
+        <div id={person.name}>{person.name}</div>
+      )}
     </div>
   )
 }
