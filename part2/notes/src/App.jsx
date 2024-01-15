@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Note from './components/Note'
+import noteService from './services/notes'
 
 const App = (props) => {
   const [notes, setNotes] = useState([])
@@ -8,17 +9,14 @@ const App = (props) => {
   const [showAll, setShowAll] = useState(true)
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/notes')
-      .then(response => {
-        console.log('promise fulfilled')
-        setNotes(response.data)
+    noteService
+      .getAll()
+      .then(initialNotes => {
+        setNotes(initialNotes)
       })
   }, [])
-  console.log('render', notes.length, 'notes')
 
   const handleNoteChange = (event) => {
-    console.log(event.target.value);
     setNewNote(event.target.value)
   }
 
@@ -29,11 +27,10 @@ const App = (props) => {
       important: Math.random() < 0.5
     }
     
-    axios
-      .post('http://localhost:3001/notes', noteObject)
-      .then(response => {
-        console.log(response)
-        setNotes(notes.concat(response.data))
+    noteService
+      .create(noteObject)
+      .then(initialNotes => {
+        setNotes(notes.concat(initialNotes))
         setNewNote('')
       })
   }
@@ -43,18 +40,19 @@ const App = (props) => {
     : notes.filter(note => note.important === true)
 
   const handleShowAll = () => setShowAll(!showAll)
-  // const handleShowAll = () => setShowAll(showAll => !showAll);
 
   const toggleImportanceOf = (id) => {
-    const url = `http://localhost:3001/notes/${id}`
     const note = notes.find(note => note.id === id)
     const changedNote = {...note, important: !note.important}
 
-    axios
-      .put(url, changedNote)
-      .then(response => {
-        console.log(response)
-        setNotes(notes.map(note => note.id != id ? note : response.data))
+    noteService
+      .update(id, changedNote)
+      .then(initialNotes => {
+        setNotes(notes.map(note => note.id != id ? note : initialNotes))
+      })
+      .catch(error => {
+        alert(`the note '${note.content}' was deleted from the server`)
+        setNotes(notes.filter(note => note.id !== id))
       })
   }
 
