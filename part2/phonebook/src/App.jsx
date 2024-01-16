@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import phonebookService from './services/phonebook'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
@@ -44,13 +43,17 @@ const App = () => {
         } else {
             const personObject = {
                 name: newName,
-                number: newNumber,
-                id: persons.length + 1
+                number: newNumber
             }
-            setPersons(persons.concat(personObject))
+
+            phonebookService
+              .create(personObject)
+              .then(initialPhonebook => {
+                setPersons(persons.concat(initialPhonebook))
+                setNewName('')
+                setNewNumber('')
+              })
         }
-        setNewName('')
-        setNewNumber('')
     }
 
     return (
