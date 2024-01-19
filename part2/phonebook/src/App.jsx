@@ -14,7 +14,6 @@ const App = () => {
     phonebookService
       .getAll()
       .then(initialPhonebook => {
-        console.log('setting initial phonebook data')
         setPersons(initialPhonebook)
       })
   }, [])
@@ -39,7 +38,16 @@ const App = () => {
   const addName = (event) => {
     event.preventDefault()
     if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already in the phonebook`)
+      if (window.confirm(`${newName} is already in the phonebook. Would you like to replace the number?`)) {
+        const existingPerson = persons.find(person => person.name === newName)
+        const changedPerson = {...existingPerson, number: newNumber}
+
+        phonebookService
+          .update(changedPerson.id, changedPerson)
+          .then(updatedPerson => {
+            setPersons(persons.map(person => person.id != changedPerson.id ? person : updatedPerson))
+          })
+      }
     } else {
       const personObject = {
         name: newName,
@@ -50,10 +58,10 @@ const App = () => {
         .create(personObject)
         .then(initialPhonebook => {
           setPersons(persons.concat(initialPhonebook))
-          setNewName('')
-          setNewNumber('')
         })
     }
+    setNewName('')
+    setNewNumber('')
   }
 
   const removeName = (id, name) => {
